@@ -9,7 +9,7 @@ const chatUser = document.getElementById("chatUser");
 const chatMsg = document.getElementById("chatMsg");
 const chatList = document.getElementById("chatList");
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://dev666.pythonanywhere.com/api";
 
 async function postJson(url, payload) {
   const response = await fetch(url, {
