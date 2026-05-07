@@ -1,0 +1,243 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
+
+:root {
+  --bg: #0e1016;
+  --bg-alt: #1a1f2b;
+  --panel: rgba(20, 24, 34, 0.9);
+  --accent: #ffb347;
+  --accent-2: #4fd1c5;
+  --text: #f3f4f7;
+  --muted: #9aa3b2;
+  --outline: rgba(255, 255, 255, 0.08);
+  --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top, #1b2340 0%, #0e1016 60%);
+  min-height: 100vh;
+  padding: 32px;
+  overflow-x: hidden;
+}
+
+.bg-noise {
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  opacity: 0.6;
+  z-index: 0;
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 36px;
+  animation: rise 0.8s ease-out;
+}
+
+.hero-inner {
+  background: linear-gradient(135deg, rgba(255, 179, 71, 0.15), rgba(79, 209, 197, 0.05));
+  border: 1px solid var(--outline);
+  padding: 28px 32px;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.api-config {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.api-config input {
+  flex: 1 1 260px;
+}
+
+.status {
+  font-size: 13px;
+  color: var(--accent-2);
+}
+
+.grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin-bottom: 32px;
+  animation: fade 1s ease;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--outline);
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(6px);
+}
+
+.panel h2 {
+  margin-bottom: 16px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+input,
+select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: "Space Grotesk", sans-serif;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+button.primary {
+  background: linear-gradient(120deg, var(--accent), #ff6f91);
+  color: #151515;
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--outline);
+  color: var(--text);
+}
+
+.result {
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.chat-list {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.chat-item {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--outline);
+  animation: pop 0.3s ease;
+}
+
+.chat-item span {
+  display: block;
+}
+
+.chat-item .user {
+  font-weight: 600;
+  color: var(--accent-2);
+}
+
+.chat-item .time {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.98);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: 20px;
+  }
+
+  .hero-inner {
+    padding: 20px;
+  }
+}

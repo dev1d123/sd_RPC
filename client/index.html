@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RPC Demo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="bg-noise"></div>
+    <header class="hero">
+      <div class="hero-inner">
+        <p class="eyebrow">RabbitMQ RPC</p>
+        <h1>Calculator + Global Chat</h1>
+        <p class="subtitle">
+          Simple interface for RPC-backed calculator and anonymous chat.
+        </p>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel">
+        <h2>Calculator</h2>
+        <form id="calcForm" class="form-grid">
+          <label>
+            A
+            <input id="calcA" type="number" step="any" required />
+          </label>
+          <label>
+            B
+            <input id="calcB" type="number" step="any" required />
+          </label>
+          <label>
+            Operation
+            <select id="calcOp">
+              <option value="add">Add</option>
+              <option value="sub">Subtract</option>
+              <option value="mul">Multiply</option>
+              <option value="div">Divide</option>
+            </select>
+          </label>
+          <button type="submit" class="primary">Compute</button>
+        </form>
+        <div id="calcResult" class="result">Result: -</div>
+      </section>
+
+      <section class="panel">
+        <h2>Global Chat</h2>
+        <form id="chatForm" class="form-grid">
+          <label>
+            Name
+            <input id="chatUser" type="text" maxlength="32" required />
+          </label>
+          <label class="full">
+            Message
+            <input id="chatMsg" type="text" maxlength="280" required />
+          </label>
+          <button type="submit" class="primary">Send</button>
+        </form>
+        <div id="chatList" class="chat-list"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>RPC demo frontend</span>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
