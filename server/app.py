@@ -1,12 +1,12 @@
 import json
+from datetime import datetime, timezone
+from pathlib import Path
+
 from flask import Flask, jsonify, request
 
-from server.config import CHAT_LIST_LIMIT, PORT, RABBITMQ_URL, REQUEST_TIMEOUT, RPC_QUEUE
-from server.rpc_client import RpcClient
+from server.config import CHAT_LIST_LIMIT, CHAT_STORE_PATH, PORT
 
 app = Flask(__name__)
-
-rpc_client = RpcClient(rpc_queue=RPC_QUEUE, rabbitmq_url=RABBITMQ_URL)
 
 
 @app.after_request
@@ -21,17 +21,65 @@ def _options_response():
     return ("", 204)
 
 
-def _send_rpc(payload: dict):
-    corr_id = rpc_client.send_request(json.dumps(payload))
-    raw = rpc_client.wait_for_response(corr_id, REQUEST_TIMEOUT)
-    if raw is None:
-        return None, "timeout"
-    if isinstance(raw, bytes):
-        raw = raw.decode("utf-8", errors="replace")
+class ChatStore:
+    def __init__(self, path: str) -> None:
+        self.path = Path(path)
+        self.messages = []
+        self._load()
+
+    def _load(self) -> None:
+        if not self.path.exists():
+            return
+        try:
+            data = json.loads(self.path.read_text())
+        except json.JSONDecodeError:
+            return
+        if isinstance(data, list):
+            self.messages = data
+
+    def append(self, message: dict) -> None:
+        self.messages.append(message)
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with self.path.open("w", encoding="utf-8") as handle:
+            handle.write(json.dumps(self.messages, ensure_ascii=False, indent=2))
+
+    def tail(self, limit: int) -> list:
+        if limit <= 0:
+            return []
+        return self.messages[-limit:]
+
+
+chat_store = ChatStore(CHAT_STORE_PATH)
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _handle_calc(op: str, params: list) -> dict:
+    if not isinstance(params, list) or len(params) != 2:
+        return {"ok": False, "error": "invalid_params"}
+
     try:
-        return json.loads(raw), None
-    except json.JSONDecodeError:
-        return {"ok": False, "error": "bad_response", "raw": raw}, "bad_response"
+        a = float(params[0])
+        b = float(params[1])
+    except (TypeError, ValueError):
+        return {"ok": False, "error": "invalid_number"}
+
+    if op == "add":
+        result = a + b
+    elif op == "sub":
+        result = a - b
+    elif op == "mul":
+        result = a * b
+    elif op == "div":
+        if b == 0:
+            return {"ok": False, "error": "division_by_zero"}
+        result = a / b
+    else:
+        return {"ok": False, "error": "invalid_operation"}
+
+    return {"ok": True, "result": result}
 
 
 @app.route("/api/health", methods=["GET"])
@@ -51,11 +99,7 @@ def calc():
     if not op or not isinstance(params, list) or len(params) != 2:
         return jsonify({"ok": False, "error": "invalid_request"}), 400
 
-    payload = {"action": "operacion", "op": op, "params": params}
-    response, err = _send_rpc(payload)
-    if err == "timeout":
-        return jsonify({"ok": False, "error": "timeout"}), 504
-    return jsonify(response)
+    return jsonify(_handle_calc(op, params))
 
 
 @app.route("/api/chat/send", methods=["POST", "OPTIONS"])
@@ -70,11 +114,9 @@ def chat_send():
     if not user or not msg:
         return jsonify({"ok": False, "error": "invalid_request"}), 400
 
-    payload = {"action": "chat_send", "user": user, "msg": msg}
-    response, err = _send_rpc(payload)
-    if err == "timeout":
-        return jsonify({"ok": False, "error": "timeout"}), 504
-    return jsonify(response)
+    record = {"user": str(user), "msg": str(msg), "ts": _now_iso()}
+    chat_store.append(record)
+    return jsonify({"ok": True})
 
 
 @app.route("/api/chat/list", methods=["GET", "OPTIONS"])
@@ -87,11 +129,7 @@ def chat_list():
     except ValueError:
         limit = CHAT_LIST_LIMIT
 
-    payload = {"action": "chat_list", "limit": limit}
-    response, err = _send_rpc(payload)
-    if err == "timeout":
-        return jsonify({"ok": False, "error": "timeout"}), 504
-    return jsonify(response)
+    return jsonify({"ok": True, "messages": chat_store.tail(limit)})
 
 
 if __name__ == "__main__":
