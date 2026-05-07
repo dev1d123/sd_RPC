@@ -20,12 +20,13 @@ def _load_dotenv(path: Path) -> None:
 
 
 BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent
 _load_dotenv(BASE_DIR.parent / ".env")
 
 RABBITMQ_URL = os.getenv("RABBITMQ_URL", "")
 RPC_QUEUE = os.getenv("RPC_QUEUE", "rpc_queue")
 CHAT_STORE_PATH = os.getenv(
-    "CHAT_STORE_PATH", str(BASE_DIR.parent / "server" / "messages" / "messages.json")
+    "CHAT_STORE_PATH", str(PROJECT_ROOT / "server" / "messages" / "messages.json")
 )
 
 
